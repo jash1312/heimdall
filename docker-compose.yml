@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  price-comparison-api:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: python main.py serve
+    volumes:
+      - ./screenshots:/app/screenshots
+    restart: unless-stopped
+
+  price-comparison-ui:
+    build: .
+    ports:
+      - "8501:8501"
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: streamlit run streamlit_app.py --server.port=8501 --server.address=0.0.0.0
+    volumes:
+      - ./screenshots:/app/screenshots
+    depends_on:
+      - price-comparison-api
+    restart: unless-stopped
+
+volumes:
+  screenshots: 
