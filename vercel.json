@@ -1,16 +1,13 @@
 {
   "version": 2,
-  "builds": [
-    { "src": "main.py", "use": "@vercel/python" },
-    { "src": "public/**", "use": "@vercel/static" }
-  ],
-  "rewrites": [
-    { "source": "/fetch_prices", "destination": "/main.py" },
-    { "source": "/(.*)", "destination": "/index.html" }
-  ],
   "functions": {
-    "main.py": {
+    "api/fetch_prices.py": {
+      "runtime": "python3.9",
       "maxDuration": 30
     }
-  }
+  },
+  "rewrites": [
+    { "source": "/fetch_prices", "destination": "/api/fetch_prices.py" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }
