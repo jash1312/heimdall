@@ -1,13 +1,11 @@
 {
-  "version": 2,
   "functions": {
     "api/fetch_prices.py": {
-      "runtime": "python3.9",
       "maxDuration": 30
     }
   },
   "rewrites": [
-    { "source": "/fetch_prices", "destination": "/api/fetch_prices.py" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/fetch_prices", "destination": "/api/fetch_prices" },
+    { "source": "/(.*)", "destination": "/public/index.html" }
   ]
-}
+} 

@@ -7,9 +7,9 @@ A generic tool that fetches product prices from multiple websites based on the c
 - **Multi-country support**: US, India, and extensible to other countries
 - **Multiple retailers**: Amazon, Flipkart, Walmart, and more
 - **AI-powered matching**: Intelligent product matching using LLM-based algorithms
-- **Robust scraping**: Anti-detection measures with Selenium and requests
+- **Robust scraping**: Anti-detection measures with requests
 - **Best price selection**: Shows the best (lowest price) result from each site
-- **Multiple interfaces**: REST API, CLI, and Streamlit web UI
+- **REST API**: Serverless API endpoint for easy integration
 
 ## Supported Countries and Retailers
 
@@ -23,15 +23,14 @@ A generic tool that fetches product prices from multiple websites based on the c
 ### Prerequisites
 
 - Python 3.8+
-- Chrome browser (for Selenium scraping)
 - Git
 
-### Installation
+### Installation (for local testing)
 
 1. **Clone the repository**
    ```bash
    git clone <your-repo-url>
-   cd online
+   cd heimdall
    ```
 
 2. **Create virtual environment**
@@ -45,31 +44,26 @@ A generic tool that fetches product prices from multiple websites based on the c
    pip install -r requirements.txt
    ```
 
-4. **Install Chrome WebDriver** (automatically handled by webdriver-manager)
+4. **Run the API locally**
+   ```bash
+   uvicorn api.fetch_prices:app --reload
+   ```
+   (Or use Flask if you prefer)
 
-### Running the Application
+## Vercel Deployment
 
-#### Option 1: Streamlit Web UI (Recommended)
-```bash
-streamlit run streamlit_app.py
-```
-Access the web interface at: http://localhost:8501
-
-#### Option 2: Flask API Server
-```bash
-python main.py serve
-```
-API will be available at: http://localhost:5000
-
-#### Option 3: Command Line Interface
-```bash
-python main.py
-```
+1. Push this repo to GitHub.
+2. Import the repo in Vercel (https://vercel.com/new).
+3. Vercel will auto-detect the `api/` directory and deploy `api/fetch_prices.py` as a serverless function.
+4. The API will be available at:
+   ```
+   https://<your-vercel-domain>/api/fetch_prices
+   ```
 
 ## API Usage
 
 ### Endpoint
-`POST /fetch_prices`
+`POST /api/fetch_prices`
 
 ### Request Format
 ```json
@@ -89,13 +83,7 @@ python main.py
     "productName": "Apple iPhone 16 Pro 128GB",
     "source": "Amazon"
   },
-  {
-    "link": "https://www.walmart.com/...",
-    "price": "999",
-    "currency": "USD",
-    "productName": "Apple iPhone 16 Pro 128GB",
-    "source": "Walmart"
-  }
+  ...
 ]
 ```
 
@@ -103,58 +91,35 @@ python main.py
 
 ### Test the required query: iPhone 16 Pro, 128GB in US
 ```bash
-curl -X POST http://localhost:5000/fetch_prices \
+curl -X POST https://<your-vercel-domain>/api/fetch_prices \
   -H "Content-Type: application/json" \
   -d '{"country": "US", "query": "iPhone 16 Pro, 128GB"}'
 ```
 
 ### Test Indian product: boAt Airdopes 311 Pro
 ```bash
-curl -X POST http://localhost:5000/fetch_prices \
+curl -X POST https://<your-vercel-domain>/api/fetch_prices \
   -H "Content-Type: application/json" \
   -d '{"country": "IN", "query": "boAt Airdopes 311 Pro"}'
-```
-
-### Test with different products
-```bash
-# Laptop search in US
-curl -X POST http://localhost:5000/fetch_prices \
-  -H "Content-Type: application/json" \
-  -d '{"country": "US", "query": "MacBook Pro 14 inch"}'
-
-# Mobile search in India
-curl -X POST http://localhost:5000/fetch_prices \
-  -H "Content-Type: application/json" \
-  -d '{"country": "IN", "query": "Samsung Galaxy S24"}'
-```
-
-## Docker Setup (Alternative)
-
-### Build and run with Docker
-```bash
-# Build the image
-docker build -t price-comparison-tool .
-
-# Run the container
-docker run -p 5000:5000 -p 8501:8501 price-comparison-tool
 ```
 
 ## Project Structure
 
 ```
-├── main.py              # Core scraping logic and Flask API
-├── streamlit_app.py     # Streamlit web interface
-├── requirements.txt     # Python dependencies
-├── Dockerfile          # Docker configuration
-├── README.md           # This file
-└── task.txt            # Original task requirements
+├── api/
+│   └── fetch_prices.py      # Serverless API logic
+├── public/                  # (Optional) Frontend static files
+├── requirements.txt         # Python dependencies
+├── vercel.json              # Vercel configuration
+├── README.md                # This file
+└── task.txt                 # Original task requirements
 ```
 
 ## Key Components
 
 ### 1. Connectors
 - **Amazon US**: Web scraping with anti-detection measures
-- **Amazon India**: Selenium-based scraping for robust results
+- **Amazon India**: Requests-based scraping for robust results
 - **Flipkart**: Mock implementation (easily extensible)
 - **Walmart**: Mock implementation (easily extensible)
 
@@ -172,12 +137,11 @@ docker run -p 5000:5000 -p 8501:8501 price-comparison-tool
 - Random user agents
 - Request delays
 - Retry mechanisms
-- Selenium with explicit waits
 
 ## Configuration
 
 ### Adding New Countries
-Edit the `SITE_MAP` in `main.py`:
+Edit the `SITE_MAP` in `api/fetch_prices.py`:
 ```python
 SITE_MAP = {
     "US": ["Amazon", "Walmart"],
@@ -193,51 +157,4 @@ SITE_MAP = {
 
 ## Troubleshooting
 
-### Common Issues
-
-1. **Chrome WebDriver issues**
-   ```bash
-   # Kill existing Chrome processes
-   pkill -f chrome
-   pkill -f chromedriver
-   ```
-
-2. **Selenium timeout**
-   - Check internet connection
-   - Increase wait times in the code
-   - Check for CAPTCHA (screenshots saved automatically)
-
-3. **No results found**
-   - Verify the query format
-   - Check if the product exists on the sites
-   - Review debug logs
-
-### Debug Mode
-The application includes comprehensive logging. Check the terminal output for detailed information about:
-- Number of products found
-- Matching results
-- Best prices from each site
-- Any errors encountered
-
-## Performance Notes
-
-- **Response time**: 5-15 seconds depending on the number of sites
-- **Rate limiting**: Built-in delays to avoid being blocked
-- **Caching**: No caching implemented (can be added for production)
-
-## Future Enhancements
-
-1. **Real-time price tracking**
-2. **Price history and trends**
-3. **More retailers and countries**
-4. **Advanced AI matching**
-5. **Price alerts**
-6. **Mobile app**
-
-## License
-
-This project is developed for educational and demonstration purposes.
-
-## Support
-
-For issues and questions, please check the troubleshooting section or create an issue in the repository. 
+If you encounter issues, please open an issue on GitHub or contact the maintainer. 
