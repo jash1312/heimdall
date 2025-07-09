@@ -10,19 +10,9 @@
       "use": "@vercel/static"
     }
   ],
-  "routes": [
-    {
-      "src": "/fetch_prices",
-      "dest": "main.py"
-    },
-    {
-      "src": "/",
-      "dest": "/public/index.html"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "main.py"
-    }
+  "rewrites": [
+    { "source": "/fetch_prices", "destination": "/main.py" },
+    { "source": "/(.*)", "destination": "/public/index.html" }
   ],
   "functions": {
     "main.py": {
